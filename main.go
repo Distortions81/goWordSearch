@@ -15,10 +15,9 @@ const (
 	maxSize = 128
 
 	defaultSize     = 8
-	minLenDefault   = 2
+	minLenDefault   = 3
 	maxLenDefault   = 64
-	bestOfDefault   = 1024
-	defaultMaxDepth = 10000
+	defaultMaxDepth = 100000
 
 	charList = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	numChars = len(charList)
@@ -29,7 +28,7 @@ var (
 	minLength = minLenDefault
 	maxLength = maxLenDefault
 	maxDepth  = defaultMaxDepth
-	bestOfAtt = bestOfDefault
+	bestOfAtt = 100
 	longNames = false
 	hideDirs  = false
 	hideWords = false
@@ -55,14 +54,11 @@ func main() {
 	hideDirs = *hDirs
 	hideWords = *hWords
 
-	/* Auto default max attempts */
 	if *sqSize != defaultSize {
 		boardSize = XY{X: *sqSize, Y: *sqSize}
 	} else {
 		boardSize = XY{X: *xSize, Y: *ySize}
 	}
-	bestOfAtt = boardSize.X * boardSize.Y * DIR_ANY * 2
-
 	if *maxWordLen != maxLenDefault {
 		maxLength = *maxWordLen
 	}
