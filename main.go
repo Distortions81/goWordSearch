@@ -67,7 +67,7 @@ func main() {
 	}
 	bestOfAtt = *bestOf
 
-	fixDict()
+	//fixDict()
 	limitDict()
 
 	numThreads := runtime.NumCPU()
