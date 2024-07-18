@@ -59,10 +59,11 @@ var dirName []string = []string{
 }
 
 const (
-	maxSize       = 128
-	defaultSize   = 20
-	minLenDefault = 1
-	maxLenDefault = 8
+	maxSize = 128
+
+	defaultSize   = 8
+	minLenDefault = 2
+	maxLenDefault = 50
 	maxDepth      = 10000
 	charList      = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	numChars      = len(charList)
@@ -147,6 +148,11 @@ func limitDict() {
 
 func main() {
 	boardSize = XY{X: defaultSize, Y: defaultSize}
+
+	if maxLenDefault > (boardSize.X + boardSize.Y) {
+		maxLength = boardSize.X + boardSize.Y
+		fmt.Printf("Limiting word size to %v (board size)\n", maxLength)
+	}
 
 	fixDict()
 	limitDict()
