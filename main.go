@@ -55,40 +55,50 @@ func main() {
 	boardSize = XY{X: defaultSize, Y: defaultSize}
 
 	clearGrid()
-	makeGrid()
-	printGrid()
+	//makeGrid()
 
 	placeWord(DIR_UP, "HORK")
 	placeWord(DIR_DOWN, "BORK")
 	placeWord(DIR_RIGHT, "DORK")
+	placeWord(DIR_DOWN, "ZZZZ")
+	printGrid()
 }
 
 func clearGrid() {
-	for x := 0; x < maxSize; x++ {
-		for y := 0; y < maxSize; y++ {
+	for y := 0; y < maxSize; y++ {
+		for x := 0; x < maxSize; x++ {
 			board[x][y] = ' '
 		}
 	}
 }
 
 func makeGrid() {
-	for x := 0; x < maxSize; x++ {
-		for y := 0; y < maxSize; y++ {
+	for y := 0; y < maxSize; y++ {
+		for x := 0; x < maxSize; x++ {
 			randNum := rand.Intn(numChars)
 			board[x][y] = rune(charList[randNum])
 		}
 	}
 }
 
+func printSep() {
+	for x := 0; x < int(boardSize.X*2)+2; x++ {
+		fmt.Print("-")
+	}
+	fmt.Println("")
+}
+
 func printGrid() {
-	for x := 0; x < int(boardSize.X); x++ {
+	printSep()
+	for y := 0; y < int(boardSize.Y); y++ {
 		line := ""
 
-		for y := 0; y < int(boardSize.Y); y++ {
+		for x := 0; x < int(boardSize.X); x++ {
 			line = line + string(board[x][y]) + " "
 		}
-		fmt.Println(line)
+		fmt.Println("|" + line + "|")
 	}
+	printSep()
 }
 
 func placeWord(dir DIR, placeWord string) error {
@@ -112,9 +122,10 @@ func placeWord(dir DIR, placeWord string) error {
 
 	newWord := wordData{Word: placeWord, Dir: dir}
 	Spots := []SPOT{}
-	for _, c := range placeWord {
-		board[randPos.X][randPos.Y] = c
-		newSpot := SPOT{Rune: c, Pos: randPos}
+	for i, c := range placeWord {
+		newPos := XY{X: randPos.X + POS(i), Y: randPos.Y}
+		board[newPos.X][newPos.Y] = c
+		newSpot := SPOT{Rune: c, Pos: newPos}
 		Spots = append(Spots, newSpot)
 	}
 	newWord.Spot = Spots
