@@ -1,6 +1,8 @@
 # goWordSearch:
 Generates a word puzzle
 
+![screenshot](https://github.com/Distortions81/goWordSearch/blob/main/screenshot.png)
+
 ## Params:
 
   -hideDir
