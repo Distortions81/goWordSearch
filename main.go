@@ -67,7 +67,6 @@ func main() {
 
 	fixDict()
 	limitDict()
-
 	//Make board
 
 	topScore := 0
@@ -85,7 +84,11 @@ func main() {
 				}
 			}
 			if !found {
-				placeWord(DIR_ANY, randWord, 0)
+				for depth := 0; depth < maxDepth; depth++ {
+					if placeWord(DIR_ANY, randWord) {
+						break
+					}
+				}
 			}
 		}
 		score := len(wordList)
@@ -98,12 +101,8 @@ func main() {
 	}
 }
 
-func placeWord(inDir int, pWord string, d int) error {
-	if d > maxDepth {
-		return nil
-	}
+func placeWord(inDir int, pWord string) bool {
 
-	//fmt.Printf("inDir: %v\n", dirName[inDir])
 	dir := inDir
 	if inDir == DIR_ANY {
 		dir = rand.Intn(DIR_ANY)
@@ -120,42 +119,36 @@ func placeWord(inDir int, pWord string, d int) error {
 			dir = DIR_RIGHT
 		}
 	}
-	//fmt.Printf("outDir: %v\n", dirName[dir])
 
 	randPos := XY{X: rand.Intn(int(boardSize.X)), Y: rand.Intn(int(boardSize.Y))}
 	for i := range pWord {
 		newPos := randPos.addXY(dirMap[dir].multXY(XY{X: i + 1, Y: i + 1}))
 		if !newPos.inBounds() {
-			//fmt.Printf("Word %v went off the edge, dir: %v\n", pWord, dirName[dir])
-			placeWord(inDir, pWord, d+1)
-			return nil
+			return false
 		}
 	}
 
-	newWord := wordData{Word: pWord, Dir: dir}
 	Spots := []SPOT{}
 	for i, c := range pWord {
 		newPos := randPos.addXY(dirMap[dir].multXY(XY{X: i + 1, Y: i + 1}))
 		if !newPos.inBounds() {
-			continue
+			return false
 		}
 		if board[newPos.X][newPos.Y].Used {
-
 			if board[newPos.X][newPos.Y].Rune != c {
-				placeWord(inDir, pWord, d+1)
-				return nil
-			} /* else {
-				fmt.Printf("Crossed word: %v at %v,%v. Dir: %v, Letter: %v\n", pWord, newPos.X, newPos.Y, dirName[dir], string(c))
-			} */
+				return false
+			}
 		}
 		newSpot := SPOT{Rune: c, Pos: newPos}
 		Spots = append(Spots, newSpot)
 	}
+
+	newWord := wordData{Word: pWord, Dir: dir}
 	newWord.Spot = Spots
 	wordList = append(wordList, newWord)
 	for _, c := range newWord.Spot {
 		board[c.Pos.X][c.Pos.Y] = SPOT{Rune: c.Rune, Used: true}
 	}
 
-	return nil
+	return true
 }
