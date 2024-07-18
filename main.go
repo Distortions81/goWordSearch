@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	maxSize = 10000
+	maxSize = 128
 
 	defaultSize     = 8
 	minLenDefault   = 3
