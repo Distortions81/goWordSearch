@@ -57,10 +57,13 @@ func main() {
 	clearGrid()
 	//makeGrid()
 
-	placeWord(DIR_UP, "HORK")
-	placeWord(DIR_DOWN, "BORK")
-	placeWord(DIR_RIGHT, "DORK")
-	placeWord(DIR_DOWN, "ZZZZ")
+	placeWord(DIR_UP, "hello")
+	placeWord(DIR_DOWN, "there")
+	placeWord(DIR_RIGHT, "everyone")
+	placeWord(DIR_DOWN, "this")
+	placeWord(DIR_DOWN, "is")
+	placeWord(DIR_DOWN, "a")
+	placeWord(DIR_DOWN, "test")
 	printGrid()
 }
 
