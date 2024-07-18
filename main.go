@@ -5,6 +5,10 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"runtime"
+	"sync/atomic"
+
+	"github.com/remeh/sizedwaitgroup"
 )
 
 const (
@@ -22,8 +26,6 @@ const (
 
 var (
 	boardSize XY
-	board     [maxSize][maxSize]SPOT
-	wordList  []wordData
 	minLength = minLenDefault
 	maxLength = maxLenDefault
 	maxDepth  = defaultMaxDepth
@@ -69,39 +71,49 @@ func main() {
 	limitDict()
 	//Make board
 
-	topScore := 0
+	numThreads := runtime.NumCPU()
+	wg := sizedwaitgroup.New(numThreads)
+
+	var topScore atomic.Int32
 	for c := 0; c < bestOfAtt; c++ {
-		shuffleNewDict()
-		makeGrid()
-		for i := 0; i < newDictLen; i++ {
-			randWord := newDict[i]
-			found := false
-			for _, word := range wordList {
-				if randWord == word.Word {
-					found = true
-					//fmt.Printf("Word already present: %v\n", randWord)
-					break
-				}
-			}
-			if !found {
-				for depth := 0; depth < maxDepth; depth++ {
-					if placeWord(DIR_ANY, randWord) {
+		wg.Add()
+		go func(c int) {
+			local := localWork{}
+			local.shuffleNewDict()
+			local.makeGrid()
+			for i := 0; i < newDictLen; i++ {
+				randWord := newDict[i]
+				found := false
+				for _, word := range local.words {
+					if randWord == word.Word {
+						found = true
+						//fmt.Printf("Word already present: %v\n", randWord)
 						break
 					}
 				}
+				if !found {
+					for depth := 0; depth < maxDepth; depth++ {
+						if local.placeWord(DIR_ANY, randWord) {
+							break
+						}
+					}
+				}
 			}
-		}
-		score := len(wordList)
+			score := len(local.words)
 
-		if score > topScore {
-			topScore = score
-			fmt.Printf("\nAttempt %v of %v.\n", c, bestOfAtt)
-			printGrid()
-		}
+			if score > int(topScore.Load()) {
+				topScore.Store(int32(score))
+				fmt.Printf("\nAttempt %v of %v.\n", c, bestOfAtt)
+				local.printGrid()
+			}
+
+			wg.Done()
+		}(c)
 	}
+	wg.Wait()
 }
 
-func placeWord(inDir int, pWord string) bool {
+func (local *localWork) placeWord(inDir int, pWord string) bool {
 
 	dir := inDir
 	if inDir == DIR_ANY {
@@ -134,8 +146,8 @@ func placeWord(inDir int, pWord string) bool {
 		if !newPos.inBounds() {
 			return false
 		}
-		if board[newPos.X][newPos.Y].Used {
-			if board[newPos.X][newPos.Y].Rune != c {
+		if local.board[newPos.X][newPos.Y].Used {
+			if local.board[newPos.X][newPos.Y].Rune != c {
 				return false
 			}
 		}
@@ -145,9 +157,9 @@ func placeWord(inDir int, pWord string) bool {
 
 	newWord := wordData{Word: pWord, Dir: dir}
 	newWord.Spot = Spots
-	wordList = append(wordList, newWord)
+	local.words = append(local.words, newWord)
 	for _, c := range newWord.Spot {
-		board[c.Pos.X][c.Pos.Y] = SPOT{Rune: c.Rune, Used: true}
+		local.board[c.Pos.X][c.Pos.Y] = SPOT{Rune: c.Rune, Used: true}
 	}
 
 	return true

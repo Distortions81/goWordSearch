@@ -26,7 +26,6 @@ func fixDict() {
 	}
 	dictionary = tempDict
 	dictionaryLen = len(dictionary) - 1
-	//fmt.Printf("Removed %v words from dictionary.\n", c)
 }
 
 func limitDict() {
@@ -42,14 +41,12 @@ func limitDict() {
 		newDict = append(newDict, strings.ToUpper(word))
 	}
 	newDictLen = len(newDict) - 1
-	shuffleNewDict()
-
-	//fmt.Printf("Shuffled list and limited dict to words between %v and %v letters (%v results).\n", minLength, maxLength, newDictLen)
 }
 
-func shuffleNewDict() {
+func (local *localWork) shuffleNewDict() {
+	local.dict = newDict
 	rand.Shuffle(newDictLen, func(i, j int) {
-		newDict[i], newDict[j] = newDict[j], newDict[i]
+		local.dict[i], local.dict[j] = local.dict[j], local.dict[i]
 	})
 }
 

@@ -19,3 +19,9 @@ type wordData struct {
 	Found bool
 	Color color.RGBA64
 }
+
+type localWork struct {
+	board [maxSize][maxSize]SPOT
+	dict  []string
+	words []wordData
+}

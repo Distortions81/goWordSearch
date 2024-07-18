@@ -38,41 +38,30 @@ func (pos XY) inBounds() bool {
 	return true
 }
 
-func initGrid() {
-	wordList = []wordData{}
-
-	for y := 0; y < maxSize; y++ {
-		for x := 0; x < maxSize; x++ {
-			board[x][y] = SPOT{Used: false}
-		}
-	}
-}
-
-func makeGrid() {
-	initGrid()
+func (local *localWork) makeGrid() {
 	for y := 0; y < int(boardSize.X); y++ {
 		for x := 0; x < int(boardSize.Y); x++ {
 			randNum := rand.Intn(numChars)
-			board[x][y] = SPOT{Rune: rune(charList[randNum]), Used: false}
+			local.board[x][y] = SPOT{Rune: rune(charList[randNum]), Used: false}
 		}
 	}
 }
 
-func printGrid() {
+func (local *localWork) printGrid() {
 	for y := 0; y < int(boardSize.Y); y++ {
 		line := ""
 
 		for x := 0; x < int(boardSize.X); x++ {
-			line = line + string(board[x][y].Rune) + " "
+			line = line + string(local.board[x][y].Rune) + " "
 		}
 		fmt.Println(" " + line)
 	}
 
 	fmt.Println("")
-	fmt.Printf("%v words to be found.\n", len(wordList))
+	fmt.Printf("%v words to be found.\n", len(local.words))
 
-	sort.Sort(Alphabetic(wordList))
-	for w, word := range wordList {
+	sort.Sort(Alphabetic(local.words))
+	for w, word := range local.words {
 		if w > 0 {
 			fmt.Print(", ")
 		}
