@@ -18,7 +18,7 @@ const (
 	minLenDefault   = 2
 	maxLenDefault   = 64
 	bestOfDefault   = 1000
-	defaultMaxDepth = 1000
+	defaultMaxDepth = 10000
 
 	charList = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	numChars = len(charList)
@@ -69,7 +69,6 @@ func main() {
 
 	fixDict()
 	limitDict()
-	//Make board
 
 	numThreads := runtime.NumCPU()
 	wg := sizedwaitgroup.New(numThreads)
@@ -87,7 +86,6 @@ func main() {
 				for _, word := range local.words {
 					if randWord == word.Word {
 						found = true
-						//fmt.Printf("Word already present: %v\n", randWord)
 						break
 					}
 				}
