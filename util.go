@@ -73,7 +73,7 @@ func (local *localWork) printBoard() {
 		if w > 0 {
 			fmt.Print(", ")
 		}
-		fmt.Printf("%v: (%v)", strings.ToLower(word.Word), dirName[word.Dir])
+		fmt.Printf("%v %v", strings.ToLower(word.Word), dirNameShort[word.Dir])
 
 		/*
 			//Sanity check

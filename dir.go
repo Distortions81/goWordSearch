@@ -41,3 +41,17 @@ var dirName []string = []string{
 	"Any",
 	"Normal",
 }
+
+var dirNameShort []string = []string{
+	"R",
+	"L",
+	"U",
+	"D",
+	"U&L",
+	"U&R",
+	"D&L",
+	"D&R",
+
+	"*",
+	"+",
+}
