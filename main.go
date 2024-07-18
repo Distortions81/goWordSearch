@@ -32,7 +32,7 @@ const (
 	defaultSize   = 20
 	minLenDefault = 1
 	maxLenDefault = 8
-	maxDepth      = 10000
+	maxDepth      = 1000
 	charList      = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	numChars      = len(charList)
 )
