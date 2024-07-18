@@ -130,7 +130,7 @@ func (local *localWork) placeWord(inDir int, pWord string) bool {
 		}
 	}
 
-	randPos := XY{X: rand.Intn(int(boardSize.X)), Y: rand.Intn(int(boardSize.Y))}
+	randPos := XY{X: rand.Intn(int(boardSize.X) + 1), Y: rand.Intn(int(boardSize.Y) + 1)}
 	for i := range pWord {
 		newPos := randPos.addXY(dirMap[dir].multXY(XY{X: i + 1, Y: i + 1}))
 		if !newPos.inBounds() {
