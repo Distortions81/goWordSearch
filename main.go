@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
-	"strings"
 )
 
 const (
@@ -14,6 +13,7 @@ const (
 	defaultSize     = 8
 	minLenDefault   = 2
 	maxLenDefault   = 64
+	bestOfDefault   = 1000
 	defaultMaxDepth = 1000
 
 	charList = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -27,26 +27,27 @@ var (
 	minLength = minLenDefault
 	maxLength = maxLenDefault
 	maxDepth  = defaultMaxDepth
+	bestOfAtt = bestOfDefault
 )
 
 func main() {
 
-	var sqSize, xSize, ySize, maxWordLen, minWordLen, maxSearchDepth *int
+	//Flags
+	var sqSize, xSize, ySize, maxWordLen, minWordLen, maxSearchDepth, bestOf *int
+	bestOf = flag.Int("bestOf", bestOfDefault, "end on best of X attempts")
 	sqSize = flag.Int("squareSize", defaultSize, "set board x and y")
 	xSize = flag.Int("xSize", defaultSize, "set board width")
 	ySize = flag.Int("ySize", defaultSize, "set board height")
 	maxWordLen = flag.Int("maxWordLen", maxLenDefault, "max number of letters for words")
 	minWordLen = flag.Int("minWordLen", minLenDefault, "min number of letters for words")
-	maxSearchDepth = flag.Int("maxSearchDepth", maxDepth, "(advanced) max search depth when constructing the board (affects speed)")
+	maxSearchDepth = flag.Int("maxSearchDepth", defaultMaxDepth, "(advanced) max search depth when constructing the board (affects speed)")
 
 	flag.Parse()
 	if *sqSize != defaultSize {
-		xSize = sqSize
-		ySize = sqSize
+		boardSize = XY{X: *sqSize, Y: *sqSize}
+	} else {
+		boardSize = XY{X: *xSize, Y: *ySize}
 	}
-
-	//Init
-	boardSize = XY{X: *xSize, Y: *ySize}
 
 	diagsize := int(math.Ceil(float64(boardSize.X+boardSize.Y) / 2.0))
 	if maxLenDefault > diagsize {
@@ -62,32 +63,39 @@ func main() {
 	if *maxSearchDepth != defaultMaxDepth {
 		maxDepth = *maxSearchDepth
 	}
+	bestOfAtt = *bestOf
 
 	fixDict()
 	limitDict()
-	initGrid()
 
-	makeGrid()
+	//Make board
 
-	found := false
-	for c := 0; c < maxDepth; c++ {
+	topScore := 0
+	for c := 0; c < bestOfAtt; c++ {
+		shuffleNewDict()
+		makeGrid()
 		for i := 0; i < newDictLen; i++ {
 			randWord := newDict[i]
+			found := false
 			for _, word := range wordList {
-				if strings.EqualFold(randWord, word.Word) {
+				if randWord == word.Word {
 					found = true
 					//fmt.Printf("Word already present: %v\n", randWord)
 					break
 				}
 			}
 			if !found {
-				randWord = strings.ToUpper(randWord)
 				placeWord(DIR_ANY, randWord, 0)
 			}
 		}
-	}
+		score := len(wordList)
 
-	printGrid()
+		if score > topScore {
+			topScore = score
+			fmt.Printf("\nAttempt %v of %v.\n", c, bestOfAtt)
+			printGrid()
+		}
+	}
 }
 
 func placeWord(inDir int, pWord string, d int) error {

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math/rand"
 	"strings"
 )
@@ -43,11 +42,15 @@ func limitDict() {
 		newDict = append(newDict, strings.ToUpper(word))
 	}
 	newDictLen = len(newDict) - 1
+	shuffleNewDict()
+
+	//fmt.Printf("Shuffled list and limited dict to words between %v and %v letters (%v results).\n", minLength, maxLength, newDictLen)
+}
+
+func shuffleNewDict() {
 	rand.Shuffle(newDictLen, func(i, j int) {
 		newDict[i], newDict[j] = newDict[j], newDict[i]
 	})
-
-	fmt.Printf("Shuffled list and limited dict to words between %v and %v letters (%v results).\n", minLength, maxLength, newDictLen)
 }
 
 var dictionary = []string{

@@ -39,14 +39,17 @@ func (pos XY) inBounds() bool {
 }
 
 func initGrid() {
+	wordList = []wordData{}
+
 	for y := 0; y < maxSize; y++ {
 		for x := 0; x < maxSize; x++ {
-			board[x][y] = SPOT{Rune: ' ', Used: false}
+			board[x][y] = SPOT{Used: false}
 		}
 	}
 }
 
 func makeGrid() {
+	initGrid()
 	for y := 0; y < int(boardSize.X); y++ {
 		for x := 0; x < int(boardSize.Y); x++ {
 			randNum := rand.Intn(numChars)
