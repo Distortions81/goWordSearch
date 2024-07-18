@@ -22,6 +22,15 @@ func fixDict() {
 			c++
 			continue
 		}
+		for j := 0; j < dictionaryLen; j++ {
+			if i == j {
+				continue
+			}
+			if dictionary[i] == dictionary[j] {
+				//fmt.Printf("Dupe word: %v\n", dictionary[i])
+				continue
+			}
+		}
 		tempDict = append(tempDict, word)
 	}
 	dictionary = tempDict

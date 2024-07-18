@@ -17,7 +17,7 @@ const (
 	defaultSize     = 8
 	minLenDefault   = 2
 	maxLenDefault   = 64
-	bestOfDefault   = 1000
+	bestOfDefault   = 256
 	defaultMaxDepth = 10000
 
 	charList = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -86,6 +86,7 @@ func main() {
 				for _, word := range local.words {
 					if randWord == word.Word {
 						found = true
+						//fmt.Printf("Word already used: %v\n", word.Word)
 						break
 					}
 				}
@@ -132,20 +133,16 @@ func (local *localWork) placeWord(inDir int, pWord string) bool {
 
 	randPos := local.randPos(dir, pWord)
 	newPos := randPos
-	for i := range pWord {
+	/*for i := range pWord {
 		if !newPos.inBounds() {
-			fmt.Printf("Went out of bounds... %v,%v: %v at %v in dir: %v\n", randPos.X, randPos.Y, pWord, i, dirName[dir])
+			fmt.Printf("\nWent out of bounds... %v,%v: %v at %v in dir: %v\n", randPos.X, randPos.Y, pWord, i, dirName[dir])
 			return false
 		}
 		newPos = randPos.addXY(dirMap[dir].multXY(XY{X: i + 1, Y: i + 1}))
-	}
+	} */
 
 	Spots := []SPOT{}
 	for i, c := range pWord {
-		newPos := randPos.addXY(dirMap[dir].multXY(XY{X: i + 1, Y: i + 1}))
-		if !newPos.inBounds() {
-			return false
-		}
 		if local.board[newPos.X][newPos.Y].Used {
 			if local.board[newPos.X][newPos.Y].Rune != c {
 				return false
@@ -153,6 +150,7 @@ func (local *localWork) placeWord(inDir int, pWord string) bool {
 		}
 		newSpot := SPOT{Rune: c, Pos: newPos}
 		Spots = append(Spots, newSpot)
+		newPos = randPos.addXY(dirMap[dir].multXY(XY{X: i + 1, Y: i + 1}))
 	}
 
 	newWord := wordData{Word: pWord, Dir: dir}
