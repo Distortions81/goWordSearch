@@ -49,10 +49,10 @@ var dirName []string = []string{
 	"Left",
 	"Up",
 	"Down",
-	"Up-left",
-	"Up-right",
-	"Down-left",
-	"Down-right",
+	"Up and left",
+	"Up and right",
+	"Down and left",
+	"Down and right",
 
 	"Any",
 	"Normal",
@@ -224,10 +224,10 @@ func (a XY) multXY(b XY) XY {
 }
 
 func (pos XY) inBounds() bool {
-	if pos.Y > boardSize.Y || pos.Y < 0 {
+	if pos.Y >= boardSize.Y || pos.Y < 0 {
 		return false
 	}
-	if pos.X > boardSize.X || pos.X < 0 {
+	if pos.X >= boardSize.X || pos.X < 0 {
 		return false
 	}
 
