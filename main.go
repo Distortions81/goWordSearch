@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"image/color"
 	"math/rand"
-	"sort"
 	"strings"
 )
 
@@ -28,7 +27,7 @@ const (
 )
 
 const (
-	maxSize       = 254
+	maxSize       = 128
 	defaultSize   = 20
 	minLenDefault = 1
 	maxLenDefault = 8
@@ -94,7 +93,7 @@ func fixDict() {
 	}
 	dictionary = tempDict
 	dictionaryLen = len(dictionary) - 1
-	fmt.Printf("Removed %v words from dictionary.\n", c)
+	//fmt.Printf("Removed %v words from dictionary.\n", c)
 }
 
 func limitDict() {
@@ -114,7 +113,7 @@ func limitDict() {
 		newDict[i], newDict[j] = newDict[j], newDict[i]
 	})
 
-	fmt.Printf("Shuffled list and limited dict to words between %v and %v letters (%v).\n", minLength, maxLength, newDictLen)
+	//fmt.Printf("Shuffled list and limited dict to words between %v and %v letters (%v).\n", minLength, maxLength, newDictLen)
 }
 
 func main() {
@@ -122,7 +121,7 @@ func main() {
 
 	fixDict()
 	limitDict()
-	clearGrid()
+	initGrid()
 	makeGrid()
 
 	found := false
@@ -143,7 +142,7 @@ func main() {
 	printGrid()
 }
 
-func clearGrid() {
+func initGrid() {
 	for y := 0; y < maxSize; y++ {
 		for x := 0; x < maxSize; x++ {
 			board[x][y] = SPOT{Rune: ' ', Used: false}
@@ -161,7 +160,6 @@ func makeGrid() {
 }
 
 func printGrid() {
-	fmt.Println("")
 	for y := 0; y < int(boardSize.Y); y++ {
 		line := ""
 
@@ -170,17 +168,21 @@ func printGrid() {
 		}
 		fmt.Println(" " + line)
 	}
+
 	fmt.Println("")
 	fmt.Printf("%v words to be found.\n", len(wordList))
 
-	sort.Sort(Alphabetic(wordList))
-	for w, word := range wordList {
-		if w > 0 {
-			fmt.Print(", ")
+	/*
+		sort.Sort(Alphabetic(wordList))
+		for w, word := range wordList {
+			if w > 0 {
+				fmt.Print(", ")
+			}
+			fmt.Printf("%v", strings.ToLower(word.Word))
 		}
-		fmt.Printf("%v", strings.ToLower(word.Word))
-	}
-	fmt.Println()
+		fmt.Println()
+	*/
+
 }
 
 func placeWord(dir DIR, pWord string, d int) error {
