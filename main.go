@@ -17,7 +17,7 @@ const (
 	defaultSize     = 8
 	minLenDefault   = 2
 	maxLenDefault   = 64
-	bestOfDefault   = 1000
+	bestOfDefault   = 1024
 	defaultMaxDepth = 10000
 
 	charList = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -43,6 +43,7 @@ func main() {
 	minWordLen = flag.Int("minWordLen", minLenDefault, "min number of letters for words")
 	maxSearchDepth = flag.Int("maxSearchDepth", defaultMaxDepth, "(advanced) max search depth when constructing the board (affects speed)")
 	flag.Parse()
+
 	/* Auto default max attempts */
 	if *sqSize != defaultSize {
 		boardSize = XY{X: *sqSize, Y: *sqSize}
@@ -51,20 +52,30 @@ func main() {
 	}
 	bestOfAtt = boardSize.X * boardSize.Y * DIR_ANY * 2
 
-	/* Calc max word size */
-	diagsize := int(math.Ceil(float64(boardSize.X+boardSize.Y) / 2.0))
-	if maxLenDefault > diagsize {
-		maxLength = diagsize
-		fmt.Printf("Limiting word size to %v (board size)\n", maxLength)
-	}
 	if *maxWordLen != maxLenDefault {
 		maxLength = *maxWordLen
 	}
+
+	/* Calc max word size */
+	diagsize := int(math.Ceil(float64(boardSize.X+boardSize.Y) / 2.0))
+	if maxLength > diagsize {
+		maxLength = diagsize
+		fmt.Printf("Limiting word size to %v (board size)\n", maxLength)
+	}
+
 	if *minWordLen != minLenDefault {
 		minLength = *minWordLen
 	}
 	if *maxSearchDepth != defaultMaxDepth {
 		maxDepth = *maxSearchDepth
+	}
+
+	/* Don't overflow array */
+	if boardSize.X >= maxSize {
+		boardSize.X = maxSize - 1
+	}
+	if boardSize.Y >= maxSize {
+		boardSize.Y = maxSize - 1
 	}
 
 	//fixDict()
