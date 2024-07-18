@@ -28,10 +28,10 @@ func (a XY) multXY(b XY) XY {
 }
 
 func (pos XY) inBounds() bool {
-	if pos.Y > boardSize.Y || pos.Y < 0 {
+	if pos.Y >= boardSize.Y || pos.Y < 0 {
 		return false
 	}
-	if pos.X > boardSize.X || pos.X < 0 {
+	if pos.X >= boardSize.X || pos.X < 0 {
 		return false
 	}
 
@@ -66,14 +66,24 @@ func (local *localWork) printGrid() {
 			fmt.Print(", ")
 		}
 		fmt.Printf("%v: (%v)", strings.ToLower(word.Word), dirName[word.Dir])
+
+		//Sanity check
+		/*for _, item := range word.Spot {
+			if item.Pos.X < 0 || item.Pos.X > (boardSize.X-1) ||
+				item.Pos.Y < 0 || item.Pos.Y > (boardSize.Y-1) {
+				fmt.Printf("Error: %v,%v", item.Pos.X+1, item.Pos.Y+1)
+				os.Exit(0)
+				return
+			}
+		}*/
 	}
 	fmt.Println()
 }
 
 func (local *localWork) randPos(dir int, word string) XY {
 	wl := len(word) - 1
-	bsx := boardSize.X + 1
-	bsy := boardSize.Y + 1
+	bsx := boardSize.X
+	bsy := boardSize.Y
 
 	switch dir {
 	case DIR_RIGHT:

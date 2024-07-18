@@ -17,7 +17,7 @@ const (
 	defaultSize     = 8
 	minLenDefault   = 2
 	maxLenDefault   = 64
-	bestOfDefault   = 256
+	bestOfDefault   = 1000
 	defaultMaxDepth = 10000
 
 	charList = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -36,20 +36,20 @@ func main() {
 
 	//Flags
 	var sqSize, xSize, ySize, maxWordLen, minWordLen, maxSearchDepth, bestOf *int
-	bestOf = flag.Int("bestOf", bestOfDefault, "end on best of X attempts")
 	sqSize = flag.Int("squareSize", defaultSize, "set board x and y")
 	xSize = flag.Int("xSize", defaultSize, "set board width")
 	ySize = flag.Int("ySize", defaultSize, "set board height")
 	maxWordLen = flag.Int("maxWordLen", maxLenDefault, "max number of letters for words")
 	minWordLen = flag.Int("minWordLen", minLenDefault, "min number of letters for words")
 	maxSearchDepth = flag.Int("maxSearchDepth", defaultMaxDepth, "(advanced) max search depth when constructing the board (affects speed)")
-
 	flag.Parse()
 	if *sqSize != defaultSize {
 		boardSize = XY{X: *sqSize, Y: *sqSize}
 	} else {
 		boardSize = XY{X: *xSize, Y: *ySize}
 	}
+	bestOfAtt = boardSize.X * boardSize.Y * DIR_ANY * 2
+	bestOf = flag.Int("bestOf", bestOfAtt, "end on best of X attempts")
 
 	diagsize := int(math.Ceil(float64(boardSize.X+boardSize.Y) / 2.0))
 	if maxLenDefault > diagsize {
@@ -133,16 +133,17 @@ func (local *localWork) placeWord(inDir int, pWord string) bool {
 
 	randPos := local.randPos(dir, pWord)
 	newPos := randPos
-	/*for i := range pWord {
-		if !newPos.inBounds() {
-			fmt.Printf("\nWent out of bounds... %v,%v: %v at %v in dir: %v\n", randPos.X, randPos.Y, pWord, i, dirName[dir])
-			return false
-		}
-		newPos = randPos.addXY(dirMap[dir].multXY(XY{X: i + 1, Y: i + 1}))
-	} */
 
 	Spots := []SPOT{}
 	for i, c := range pWord {
+
+		/*
+			if !newPos.inBounds() {
+				fmt.Printf("\nWent out of bounds... %v,%v: %v at %v in dir: %v\n", randPos.X, randPos.Y, pWord, i, dirName[dir])
+				return false
+			}
+		*/
+
 		if local.board[newPos.X][newPos.Y].Used {
 			if local.board[newPos.X][newPos.Y].Rune != c {
 				return false
