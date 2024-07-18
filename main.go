@@ -75,12 +75,7 @@ func (list Alphabetic) Swap(i, j int) { list[i], list[j] = list[j], list[i] }
 func (list Alphabetic) Less(i, j int) bool {
 	var si string = list[i].Word
 	var sj string = list[j].Word
-	var si_lower = strings.ToLower(si)
-	var sj_lower = strings.ToLower(sj)
-	if si_lower == sj_lower {
-		return si < sj
-	}
-	return si_lower < sj_lower
+	return si < sj
 }
 
 func fixDict() {
@@ -136,7 +131,7 @@ func main() {
 		for _, word := range wordList {
 			if strings.EqualFold(randWord, word.Word) {
 				found = true
-				fmt.Printf("Word already present: %v, skipping.\n", randWord)
+				//fmt.Printf("Word already present: %v\n", randWord)
 				break
 			}
 		}
@@ -163,13 +158,6 @@ func makeGrid() {
 			board[x][y] = SPOT{Rune: rune(charList[randNum]), Used: false}
 		}
 	}
-}
-
-func printSep() {
-	for x := 0; x < int(boardSize.X*2)+2; x++ {
-		fmt.Print("-")
-	}
-	fmt.Println("")
 }
 
 func printGrid() {
