@@ -30,6 +30,7 @@ func (a XY) multXY(b XY) XY {
 	return XY{X: a.X * b.X, Y: a.Y * b.Y}
 }
 
+/*
 // Position fits on the board
 func (pos XY) inBounds() bool {
 	if pos.Y >= boardSize.Y || pos.Y < 0 {
@@ -41,6 +42,7 @@ func (pos XY) inBounds() bool {
 
 	return true
 }
+*/
 
 // Make game board (random characters)
 func (local *localWork) makeBoard() {
