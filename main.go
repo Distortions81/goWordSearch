@@ -60,10 +60,10 @@ var dirName []string = []string{
 
 const (
 	maxSize       = 128
-	defaultSize   = 8
+	defaultSize   = 20
 	minLenDefault = 1
-	maxLenDefault = 999
-	maxDepth      = 1000
+	maxLenDefault = 8
+	maxDepth      = 10000
 	charList      = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	numChars      = len(charList)
 )
@@ -154,7 +154,7 @@ func main() {
 	makeGrid()
 
 	found := false
-	for c := 0; c < 1000; c++ {
+	for c := 0; c < maxDepth; c++ {
 		for i := 0; i < newDictLen; i++ {
 			randWord := newDict[i]
 			for _, word := range wordList {
@@ -166,7 +166,7 @@ func main() {
 			}
 			if !found {
 				randWord = strings.ToUpper(randWord)
-				placeWord(DIR_NORMAL, randWord, 0)
+				placeWord(DIR_ANY, randWord, 0)
 			}
 		}
 	}
