@@ -68,15 +68,24 @@ func (local *localWork) printBoard() {
 	fmt.Println("")
 	fmt.Printf("%v words to be found.\n", len(local.words))
 
+	if hideWords {
+		fmt.Println()
+		return
+	}
+
 	sort.Sort(Alphabetic(local.words))
 	for w, word := range local.words {
 		if w > 0 {
 			fmt.Print(", ")
 		}
-		if shortNames {
-			fmt.Printf("%v %v", strings.ToLower(word.Word), dirNameShort[word.Dir])
-		} else {
-			fmt.Printf("%v: %v", strings.ToLower(word.Word), dirName[word.Dir])
+
+		if !hideDirs {
+			if longNames {
+				fmt.Printf("%v: %v", strings.ToLower(word.Word), dirName[word.Dir])
+
+			} else {
+				fmt.Printf("%v %v", strings.ToLower(word.Word), dirNameShort[word.Dir])
+			}
 		}
 
 		/*

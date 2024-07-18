@@ -25,29 +25,35 @@ const (
 )
 
 var (
-	boardSize  XY
-	minLength  = minLenDefault
-	maxLength  = maxLenDefault
-	maxDepth   = defaultMaxDepth
-	bestOfAtt  = bestOfDefault
-	shortNames = true
+	boardSize XY
+	minLength = minLenDefault
+	maxLength = maxLenDefault
+	maxDepth  = defaultMaxDepth
+	bestOfAtt = bestOfDefault
+	longNames = false
+	hideDirs  = false
+	hideWords = false
 )
 
 func main() {
 
 	//Flags
 	var sqSize, xSize, ySize, maxWordLen, minWordLen, maxSearchDepth *int
-	var sNames *bool
+	var lNames, hDirs, hWords *bool
 	sqSize = flag.Int("squareSize", defaultSize, "set board x and y")
 	xSize = flag.Int("xSize", defaultSize, "set board width")
 	ySize = flag.Int("ySize", defaultSize, "set board height")
 	maxWordLen = flag.Int("maxWordLen", maxLenDefault, "max number of letters for words")
 	minWordLen = flag.Int("minWordLen", minLenDefault, "min number of letters for words")
 	maxSearchDepth = flag.Int("maxSearchDepth", defaultMaxDepth, "(advanced) max search depth when constructing the board (affects speed)")
-	sNames = flag.Bool("shortDir", shortNames, "show short direction names")
+	lNames = flag.Bool("longDir", longNames, "show long direction names")
+	hDirs = flag.Bool("hideDir", false, "don't print word directions")
+	hWords = flag.Bool("hideWords", false, "don't print list of words")
 	flag.Parse()
 
-	shortNames = *sNames
+	longNames = *lNames
+	hideDirs = *hDirs
+	hideWords = *hWords
 
 	/* Auto default max attempts */
 	if *sqSize != defaultSize {
