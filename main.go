@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/color"
 	"math/rand"
+	"sort"
 	"strings"
 )
 
@@ -24,23 +25,51 @@ const (
 	DIR_UP_RIGHT
 	DIR_DOWN_LEFT
 	DIR_DOWN_RIGHT
+
+	DIR_ANY
+	DIR_NORMAL
 )
+
+var dirMap []XY = []XY{
+	{X: 1, Y: 0},   //right
+	{X: -1, Y: 0},  //left
+	{X: 0, Y: -1},  //up
+	{X: 0, Y: 1},   //down
+	{X: -1, Y: -1}, //up left
+	{X: 1, Y: -1},  //up right
+	{X: -1, Y: 1},  //down left
+	{X: 1, Y: 1},   //down right
+
+	{X: 0, Y: 0}, //any
+	{X: 0, Y: 0}, //normal
+}
+
+var dirName []string = []string{
+	"Right",
+	"Left",
+	"Up",
+	"Down",
+	"Up-left",
+	"Up-right",
+	"Down-left",
+	"Down-right",
+
+	"Any",
+	"Normal",
+}
 
 const (
 	maxSize       = 128
-	defaultSize   = 20
+	defaultSize   = 8
 	minLenDefault = 1
-	maxLenDefault = 8
+	maxLenDefault = 999
 	maxDepth      = 1000
 	charList      = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	numChars      = len(charList)
 )
 
-type DIR uint8
-type POS uint8
-
 type XY struct {
-	X, Y POS
+	X, Y int
 }
 
 type SPOT struct {
@@ -51,7 +80,7 @@ type SPOT struct {
 
 type wordData struct {
 	Word  string
-	Dir   DIR
+	Dir   int
 	Spot  []SPOT
 	Found bool
 	Color color.RGBA64
@@ -106,14 +135,14 @@ func limitDict() {
 		} else if wLen > maxLength {
 			continue
 		}
-		newDict = append(newDict, word)
+		newDict = append(newDict, strings.ToUpper(word))
 	}
 	newDictLen = len(newDict) - 1
 	rand.Shuffle(newDictLen, func(i, j int) {
 		newDict[i], newDict[j] = newDict[j], newDict[i]
 	})
 
-	//fmt.Printf("Shuffled list and limited dict to words between %v and %v letters (%v).\n", minLength, maxLength, newDictLen)
+	fmt.Printf("Shuffled list and limited dict to words between %v and %v letters (%v results).\n", minLength, maxLength, newDictLen)
 }
 
 func main() {
@@ -125,17 +154,20 @@ func main() {
 	makeGrid()
 
 	found := false
-	for i := 0; i < newDictLen; i++ {
-		randWord := newDict[i]
-		for _, word := range wordList {
-			if strings.EqualFold(randWord, word.Word) {
-				found = true
-				//fmt.Printf("Word already present: %v\n", randWord)
-				break
+	for c := 0; c < 1000; c++ {
+		for i := 0; i < newDictLen; i++ {
+			randWord := newDict[i]
+			for _, word := range wordList {
+				if strings.EqualFold(randWord, word.Word) {
+					found = true
+					//fmt.Printf("Word already present: %v\n", randWord)
+					break
+				}
 			}
-		}
-		if !found {
-			placeWord(DIR_RIGHT, randWord, 0)
+			if !found {
+				randWord = strings.ToUpper(randWord)
+				placeWord(DIR_NORMAL, randWord, 0)
+			}
 		}
 	}
 
@@ -172,47 +204,85 @@ func printGrid() {
 	fmt.Println("")
 	fmt.Printf("%v words to be found.\n", len(wordList))
 
-	/*
-		sort.Sort(Alphabetic(wordList))
-		for w, word := range wordList {
-			if w > 0 {
-				fmt.Print(", ")
-			}
-			fmt.Printf("%v", strings.ToLower(word.Word))
+	sort.Sort(Alphabetic(wordList))
+	for w, word := range wordList {
+		if w > 0 {
+			fmt.Print(", ")
 		}
-		fmt.Println()
-	*/
+		fmt.Printf("%v: (%v)", strings.ToLower(word.Word), dirName[word.Dir])
+	}
+	fmt.Println()
 
 }
 
-func placeWord(dir DIR, pWord string, d int) error {
+func (a XY) addXY(b XY) XY {
+	return XY{X: a.X + b.X, Y: a.Y + b.Y}
+}
+
+func (a XY) multXY(b XY) XY {
+	return XY{X: a.X * b.X, Y: a.Y * b.Y}
+}
+
+func (pos XY) inBounds() bool {
+	if pos.Y > boardSize.Y || pos.Y < 0 {
+		return false
+	}
+	if pos.X > boardSize.X || pos.X < 0 {
+		return false
+	}
+
+	return true
+}
+
+func placeWord(inDir int, pWord string, d int) error {
 	if d > maxDepth {
 		return nil
 	}
-	wLen := len(pWord)
-	pWord = strings.ToUpper(pWord)
 
-	if wLen > int(boardSize.X)+int(boardSize.Y) {
-		return fmt.Errorf("word too large for the game board size (%v,%v): %v", boardSize.X, boardSize.Y, pWord)
+	//fmt.Printf("inDir: %v\n", dirName[inDir])
+	dir := inDir
+	if inDir == DIR_ANY {
+		dir = rand.Intn(DIR_ANY)
 	}
+	if inDir == DIR_NORMAL {
+		num := rand.Intn(3)
 
-	randPos := XY{X: POS(rand.Intn(int(boardSize.X))), Y: POS(rand.Intn(int(boardSize.Y)))}
+		switch num {
+		case 0:
+			dir = DIR_DOWN
+		case 1:
+			dir = DIR_DOWN_RIGHT
+		case 2:
+			dir = DIR_RIGHT
+		}
+	}
+	//fmt.Printf("outDir: %v\n", dirName[dir])
 
-	if randPos.X+POS(wLen) >= boardSize.X {
-		//fmt.Printf("Word went over edge: %v\n", pWord)
-
-		placeWord(DIR_RIGHT, pWord, d+1)
-		return nil
+	randPos := XY{X: rand.Intn(int(boardSize.X)), Y: rand.Intn(int(boardSize.Y))}
+	for i := range pWord {
+		newPos := randPos.addXY(dirMap[dir].multXY(XY{X: i + 1, Y: i + 1}))
+		if !newPos.inBounds() {
+			//fmt.Printf("Word %v went off the edge, dir: %v\n", pWord, dirName[dir])
+			placeWord(inDir, pWord, d+1)
+			return nil
+		}
 	}
 
 	newWord := wordData{Word: pWord, Dir: dir}
 	Spots := []SPOT{}
 	for i, c := range pWord {
-		newPos := XY{X: randPos.X + POS(i), Y: randPos.Y}
+		newPos := randPos.addXY(dirMap[dir].multXY(XY{X: i + 1, Y: i + 1}))
+		if !newPos.inBounds() {
+			continue
+		}
 		if board[newPos.X][newPos.Y].Used {
-			//fmt.Printf("Collsion with word: %v at %v,%v.\n", pWord, newPos.X, newPos.Y)
-			placeWord(DIR_RIGHT, pWord, d+1)
-			return nil
+
+			if board[newPos.X][newPos.Y].Rune != c {
+				placeWord(inDir, pWord, d+1)
+				return nil
+			} else {
+				//fmt.Printf("Crossed word: %v at %v,%v. Dir: %v, Letter: %v\n", pWord, newPos.X, newPos.Y, dirName[dir], string(c))
+			}
 		}
 		newSpot := SPOT{Rune: c, Pos: newPos}
 		Spots = append(Spots, newSpot)
