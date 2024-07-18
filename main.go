@@ -35,7 +35,7 @@ var (
 func main() {
 
 	//Flags
-	var sqSize, xSize, ySize, maxWordLen, minWordLen, maxSearchDepth, bestOf *int
+	var sqSize, xSize, ySize, maxWordLen, minWordLen, maxSearchDepth *int
 	sqSize = flag.Int("squareSize", defaultSize, "set board x and y")
 	xSize = flag.Int("xSize", defaultSize, "set board width")
 	ySize = flag.Int("ySize", defaultSize, "set board height")
@@ -43,14 +43,15 @@ func main() {
 	minWordLen = flag.Int("minWordLen", minLenDefault, "min number of letters for words")
 	maxSearchDepth = flag.Int("maxSearchDepth", defaultMaxDepth, "(advanced) max search depth when constructing the board (affects speed)")
 	flag.Parse()
+	/* Auto default max attempts */
 	if *sqSize != defaultSize {
 		boardSize = XY{X: *sqSize, Y: *sqSize}
 	} else {
 		boardSize = XY{X: *xSize, Y: *ySize}
 	}
 	bestOfAtt = boardSize.X * boardSize.Y * DIR_ANY * 2
-	bestOf = flag.Int("bestOf", bestOfAtt, "end on best of X attempts")
 
+	/* Calc max word size */
 	diagsize := int(math.Ceil(float64(boardSize.X+boardSize.Y) / 2.0))
 	if maxLenDefault > diagsize {
 		maxLength = diagsize
@@ -65,7 +66,6 @@ func main() {
 	if *maxSearchDepth != defaultMaxDepth {
 		maxDepth = *maxSearchDepth
 	}
-	bestOfAtt = *bestOf
 
 	//fixDict()
 	limitDict()
@@ -78,8 +78,8 @@ func main() {
 		wg.Add()
 		go func(c int) {
 			local := localWork{}
-			local.shuffleNewDict()
-			local.makeGrid()
+			local.shuffleDict()
+			local.makeBoard()
 			for i := 0; i < newDictLen; i++ {
 				randWord := local.dict[i]
 				found := false
@@ -103,7 +103,7 @@ func main() {
 			if score > int(topScore.Load()) {
 				topScore.Store(int32(score))
 				fmt.Printf("\nAttempt %v of %v.\n", c, bestOfAtt)
-				local.printGrid()
+				local.printBoard()
 			}
 
 			wg.Done()
@@ -138,6 +138,7 @@ func (local *localWork) placeWord(inDir int, pWord string) bool {
 	for i, c := range pWord {
 
 		/*
+			//Sanity check
 			if !newPos.inBounds() {
 				fmt.Printf("\nWent out of bounds... %v,%v: %v at %v in dir: %v\n", randPos.X, randPos.Y, pWord, i, dirName[dir])
 				return false

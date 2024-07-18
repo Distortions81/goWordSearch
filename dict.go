@@ -1,9 +1,7 @@
 package main
 
 import (
-	"fmt"
 	"math/rand"
-	"os"
 	"strings"
 )
 
@@ -12,6 +10,8 @@ var newDict = []string{}
 var dictionaryLen = len(dictionary) - 1
 var newDictLen int
 
+/*
+// Only used to prefilter the dictionary
 func fixDict() {
 	c := 0
 	var tempDict []string
@@ -43,7 +43,9 @@ func fixDict() {
 	}
 	os.Exit(1)
 }
+*/
 
+// Filtered list with min/max length
 func limitDict() {
 	newDict = []string{}
 	for i := 0; i < dictionaryLen; i++ {
@@ -59,7 +61,8 @@ func limitDict() {
 	newDictLen = len(newDict) - 1
 }
 
-func (local *localWork) shuffleNewDict() {
+// Shuffle local dictionary
+func (local *localWork) shuffleDict() {
 	local.dict = newDict
 	rand.Shuffle(newDictLen, func(i, j int) {
 		local.dict[i], local.dict[j] = local.dict[j], local.dict[i]

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"os"
 	"sort"
 	"strings"
 )
@@ -19,14 +20,17 @@ func (list Alphabetic) Less(i, j int) bool {
 	return si < sj
 }
 
+// Return aXY plus bXY
 func (a XY) addXY(b XY) XY {
 	return XY{X: a.X + b.X, Y: a.Y + b.Y}
 }
 
+// Return aXY multiplied by bXY
 func (a XY) multXY(b XY) XY {
 	return XY{X: a.X * b.X, Y: a.Y * b.Y}
 }
 
+// Position fits on the board
 func (pos XY) inBounds() bool {
 	if pos.Y >= boardSize.Y || pos.Y < 0 {
 		return false
@@ -38,7 +42,8 @@ func (pos XY) inBounds() bool {
 	return true
 }
 
-func (local *localWork) makeGrid() {
+// Make game board (random characters)
+func (local *localWork) makeBoard() {
 	for y := 0; y < int(boardSize.X); y++ {
 		for x := 0; x < int(boardSize.Y); x++ {
 			randNum := rand.Intn(numChars)
@@ -47,7 +52,8 @@ func (local *localWork) makeGrid() {
 	}
 }
 
-func (local *localWork) printGrid() {
+// Print the game board
+func (local *localWork) printBoard() {
 	for y := 0; y < int(boardSize.Y); y++ {
 		line := ""
 
@@ -67,19 +73,21 @@ func (local *localWork) printGrid() {
 		}
 		fmt.Printf("%v: (%v)", strings.ToLower(word.Word), dirName[word.Dir])
 
-		//Sanity check
-		/*for _, item := range word.Spot {
-			if item.Pos.X < 0 || item.Pos.X > (boardSize.X-1) ||
-				item.Pos.Y < 0 || item.Pos.Y > (boardSize.Y-1) {
-				fmt.Printf("Error: %v,%v", item.Pos.X+1, item.Pos.Y+1)
-				os.Exit(0)
-				return
+		/*
+			//Sanity check
+			for _, item := range word.Spot {
+				if !item.Pos.inBounds() {
+					fmt.Printf("Error: %v,%v", item.Pos.X+1, item.Pos.Y+1)
+					os.Exit(0)
+					return
+				}
 			}
-		}*/
+		*/
 	}
 	fmt.Println()
 }
 
+// Random position, where the word will fit on the board in (dir)
 func (local *localWork) randPos(dir int, word string) XY {
 	wl := len(word) - 1
 	bsx := boardSize.X
@@ -102,6 +110,9 @@ func (local *localWork) randPos(dir int, word string) XY {
 		return XY{X: wl + rand.Intn((bsx - wl)), Y: rand.Intn((bsy - wl))}
 	case DIR_DOWN_RIGHT:
 		return XY{X: rand.Intn((bsx) - wl), Y: rand.Intn((bsy - wl))}
+	default:
+		fmt.Println("randPos: Invalid direction!")
+		os.Exit(1)
 	}
 	return XY{}
 }
