@@ -81,7 +81,7 @@ func main() {
 			local.shuffleNewDict()
 			local.makeGrid()
 			for i := 0; i < newDictLen; i++ {
-				randWord := newDict[i]
+				randWord := local.dict[i]
 				found := false
 				for _, word := range local.words {
 					if randWord == word.Word {
@@ -130,12 +130,14 @@ func (local *localWork) placeWord(inDir int, pWord string) bool {
 		}
 	}
 
-	randPos := XY{X: rand.Intn(int(boardSize.X) + 1), Y: rand.Intn(int(boardSize.Y) + 1)}
+	randPos := local.randPos(dir, pWord)
+	newPos := randPos
 	for i := range pWord {
-		newPos := randPos.addXY(dirMap[dir].multXY(XY{X: i + 1, Y: i + 1}))
 		if !newPos.inBounds() {
+			fmt.Printf("Went out of bounds... %v,%v: %v at %v in dir: %v\n", randPos.X, randPos.Y, pWord, i, dirName[dir])
 			return false
 		}
+		newPos = randPos.addXY(dirMap[dir].multXY(XY{X: i + 1, Y: i + 1}))
 	}
 
 	Spots := []SPOT{}

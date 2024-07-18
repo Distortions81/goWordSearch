@@ -28,10 +28,10 @@ func (a XY) multXY(b XY) XY {
 }
 
 func (pos XY) inBounds() bool {
-	if pos.Y >= boardSize.Y || pos.Y < 0 {
+	if pos.Y > boardSize.Y || pos.Y < 0 {
 		return false
 	}
-	if pos.X >= boardSize.X || pos.X < 0 {
+	if pos.X > boardSize.X || pos.X < 0 {
 		return false
 	}
 
@@ -68,5 +68,30 @@ func (local *localWork) printGrid() {
 		fmt.Printf("%v: (%v)", strings.ToLower(word.Word), dirName[word.Dir])
 	}
 	fmt.Println()
+}
 
+func (local *localWork) randPos(dir int, word string) XY {
+	wl := len(word) - 1
+	bsx := boardSize.X + 1
+	bsy := boardSize.Y + 1
+
+	switch dir {
+	case DIR_RIGHT:
+		return XY{X: rand.Intn((bsx - wl)), Y: rand.Intn((bsy))}
+	case DIR_LEFT:
+		return XY{X: wl + rand.Intn(bsx-wl), Y: rand.Intn((bsy))}
+	case DIR_UP:
+		return XY{X: rand.Intn((bsx)), Y: wl + rand.Intn((bsy - wl))}
+	case DIR_DOWN:
+		return XY{X: rand.Intn((bsx)), Y: rand.Intn((bsy - wl))}
+	case DIR_UP_LEFT:
+		return XY{X: wl + rand.Intn((bsx - wl)), Y: wl + rand.Intn((bsy - wl))}
+	case DIR_UP_RIGHT:
+		return XY{X: rand.Intn((bsx - wl)), Y: wl + rand.Intn((bsy - wl))}
+	case DIR_DOWN_LEFT:
+		return XY{X: wl + rand.Intn((bsx - wl)), Y: rand.Intn((bsy - wl))}
+	case DIR_DOWN_RIGHT:
+		return XY{X: rand.Intn((bsx) - wl), Y: rand.Intn((bsy - wl))}
+	}
+	return XY{}
 }
