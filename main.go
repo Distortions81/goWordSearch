@@ -41,6 +41,7 @@ type XY struct {
 type SPOT struct {
 	Rune rune
 	Pos  XY
+	Used bool
 }
 
 type wordData struct {
@@ -53,7 +54,7 @@ type wordData struct {
 
 var (
 	boardSize XY
-	board     [maxSize][maxSize]rune
+	board     [maxSize][maxSize]SPOT
 	wordList  []wordData
 )
 
@@ -95,16 +96,16 @@ func main() {
 func clearGrid() {
 	for y := 0; y < maxSize; y++ {
 		for x := 0; x < maxSize; x++ {
-			board[x][y] = ' '
+			board[x][y] = SPOT{Rune: ' ', Used: false}
 		}
 	}
 }
 
 func makeGrid() {
-	for y := 0; y < maxSize; y++ {
-		for x := 0; x < maxSize; x++ {
+	for y := 0; y < int(boardSize.X); y++ {
+		for x := 0; x < int(boardSize.Y); x++ {
 			randNum := rand.Intn(numChars)
-			board[x][y] = rune(charList[randNum])
+			board[x][y] = SPOT{Rune: rune(charList[randNum]), Used: false}
 		}
 	}
 }
@@ -122,7 +123,7 @@ func printGrid() {
 		line := ""
 
 		for x := 0; x < int(boardSize.X); x++ {
-			line = line + string(board[x][y]) + " "
+			line = line + string(board[x][y].Rune) + " "
 		}
 		fmt.Println("|" + line + "|")
 	}
@@ -157,9 +158,9 @@ func placeWord(dir DIR, pWord string) error {
 	Spots := []SPOT{}
 	for i, c := range pWord {
 		newPos := XY{X: randPos.X + POS(i), Y: randPos.Y}
-		if board[newPos.X][newPos.Y] != ' ' {
+		if board[newPos.X][newPos.Y].Used {
 
-			if board[newPos.X][newPos.Y] == c {
+			if board[newPos.X][newPos.Y].Rune == c {
 				//fmt.Printf("VALID collison with word: %v at %v,%v.\n", pWord, newPos.X, newPos.Y)
 				return nil
 			} else {
@@ -173,7 +174,7 @@ func placeWord(dir DIR, pWord string) error {
 	newWord.Spot = Spots
 	wordList = append(wordList, newWord)
 	for _, c := range newWord.Spot {
-		board[c.Pos.X][c.Pos.Y] = c.Rune
+		board[c.Pos.X][c.Pos.Y] = SPOT{Rune: c.Rune, Used: true}
 	}
 
 	return nil
