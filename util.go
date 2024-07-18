@@ -84,7 +84,7 @@ func (local *localWork) printBoard() {
 				fmt.Printf("%v: %v", strings.ToLower(word.Word), dirName[word.Dir])
 
 			} else {
-				fmt.Printf("%v %v", strings.ToLower(word.Word), dirNameShort[word.Dir])
+				fmt.Printf("%v: %v", strings.ToLower(word.Word), dirNameShort[word.Dir])
 			}
 		}
 
