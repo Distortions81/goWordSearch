@@ -65,6 +65,9 @@ func main() {
 		if strings.ContainsAny(dictionary[i], "-") {
 			dictionary[i] = strings.ReplaceAll(dictionary[i], "-", "")
 			c++
+		} else if strings.ContainsAny(dictionary[i], " ") {
+			dictionary[i] = strings.ReplaceAll(dictionary[i], " ", "")
+			c++
 		}
 	}
 	fmt.Printf("Fixed %v words.\n", c)
@@ -125,6 +128,13 @@ func printGrid() {
 	}
 	printSep()
 	fmt.Printf("%v words to be found.\n", len(wordList))
+	for w, word := range wordList {
+		if w > 0 {
+			fmt.Print(", ")
+		}
+		fmt.Printf("%v", word.Word)
+	}
+	fmt.Println()
 }
 
 func placeWord(dir DIR, pWord string) error {
@@ -139,29 +149,32 @@ func placeWord(dir DIR, pWord string) error {
 
 	if randPos.X+POS(wLen) >= boardSize.X {
 		placeWord(DIR_RIGHT, pWord)
-		fmt.Printf("Word went over edge: %v\n", pWord)
+		//fmt.Printf("Word went over edge: %v\n", pWord)
 		return nil
-	}
-
-	for _, word := range wordList {
-		for _, spot := range word.Spot {
-			if spot.Pos == randPos {
-				fmt.Printf("Collsion from word: %v with word %v at %v,%v.\n", word.Word, pWord, randPos.X, randPos.Y)
-				break
-			}
-		}
 	}
 
 	newWord := wordData{Word: pWord, Dir: dir}
 	Spots := []SPOT{}
 	for i, c := range pWord {
 		newPos := XY{X: randPos.X + POS(i), Y: randPos.Y}
-		board[newPos.X][newPos.Y] = c
+		if board[newPos.X][newPos.Y] != ' ' {
+
+			if board[newPos.X][newPos.Y] == c {
+				//fmt.Printf("VALID collison with word: %v at %v,%v.\n", pWord, newPos.X, newPos.Y)
+				return nil
+			} else {
+				//fmt.Printf("Collsion with word: %v at %v,%v.\n", pWord, newPos.X, newPos.Y)
+				return nil
+			}
+		}
 		newSpot := SPOT{Rune: c, Pos: newPos}
 		Spots = append(Spots, newSpot)
 	}
 	newWord.Spot = Spots
 	wordList = append(wordList, newWord)
+	for _, c := range newWord.Spot {
+		board[c.Pos.X][c.Pos.Y] = c.Rune
+	}
 
 	return nil
 }
