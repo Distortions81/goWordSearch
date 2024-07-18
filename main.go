@@ -1,7 +1,9 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"math"
 	"math/rand"
 	"strings"
 )
@@ -9,30 +11,56 @@ import (
 const (
 	maxSize = 128
 
-	defaultSize   = 8
-	minLenDefault = 2
-	maxLenDefault = 50
-	maxDepth      = 10000
-	charList      = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	numChars      = len(charList)
+	defaultSize     = 8
+	minLenDefault   = 2
+	maxLenDefault   = 64
+	defaultMaxDepth = 1000
+
+	charList = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	numChars = len(charList)
 )
 
 var (
 	boardSize XY
 	board     [maxSize][maxSize]SPOT
 	wordList  []wordData
-	minLength int = minLenDefault
-	maxLength int = maxLenDefault
+	minLength = minLenDefault
+	maxLength = maxLenDefault
+	maxDepth  = defaultMaxDepth
 )
 
 func main() {
 
-	//Init
-	boardSize = XY{X: defaultSize, Y: defaultSize}
+	var sqSize, xSize, ySize, maxWordLen, minWordLen, maxSearchDepth *int
+	sqSize = flag.Int("squareSize", defaultSize, "set board x and y")
+	xSize = flag.Int("xSize", defaultSize, "set board width")
+	ySize = flag.Int("ySize", defaultSize, "set board height")
+	maxWordLen = flag.Int("maxWordLen", maxLenDefault, "max number of letters for words")
+	minWordLen = flag.Int("minWordLen", minLenDefault, "min number of letters for words")
+	maxSearchDepth = flag.Int("maxSearchDepth", maxDepth, "(advanced) max search depth when constructing the board (affects speed)")
 
-	if maxLenDefault > (boardSize.X + boardSize.Y) {
-		maxLength = boardSize.X + boardSize.Y
+	flag.Parse()
+	if *sqSize != defaultSize {
+		xSize = sqSize
+		ySize = sqSize
+	}
+
+	//Init
+	boardSize = XY{X: *xSize, Y: *ySize}
+
+	diagsize := int(math.Ceil(float64(boardSize.X+boardSize.Y) / 2.0))
+	if maxLenDefault > diagsize {
+		maxLength = diagsize
 		fmt.Printf("Limiting word size to %v (board size)\n", maxLength)
+	}
+	if *maxWordLen != maxLenDefault {
+		maxLength = *maxWordLen
+	}
+	if *minWordLen != minLenDefault {
+		minLength = *minWordLen
+	}
+	if *maxSearchDepth != defaultMaxDepth {
+		maxDepth = *maxSearchDepth
 	}
 
 	fixDict()
